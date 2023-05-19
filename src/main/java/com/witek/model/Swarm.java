@@ -8,7 +8,7 @@ import java.util.Random;
 /**`
  * Represents a swarm of particles from the Particle Swarm Optimization algorithm.
  */
-public class Swarm implements SwarmInterface{
+public class Swarm implements SwarmInterface, Runnable {
     
     //add Observable interface related to each of dynamic parameters 
     // - bestEval, bestPosition, currentPositions and currentEval (wtedy musiałoby być kilka ? i na żywo wyświetlane ? )
@@ -24,6 +24,15 @@ public class Swarm implements SwarmInterface{
     private int numOfParticles, epochs;
     private double inertia, cognitiveComponent, socialComponent;
     private Vector bestPosition;
+
+    public double getBestEval() {
+        return bestEval;
+    }
+
+    public void setBestEval(double bestEval) {
+        this.bestEval = bestEval;
+    }
+
     private double bestEval;
     public static final double DEFAULT_INERTIA = 0.729844;
     public static final double DEFAULT_COGNITIVE = 1.496180; // Cognitive component. == Social component
@@ -47,6 +56,8 @@ public class Swarm implements SwarmInterface{
     }
 
 
+
+
     /**
      * Construct the Swarm with custom values.
      * @param particles     the number of particles to create
@@ -63,7 +74,14 @@ public class Swarm implements SwarmInterface{
         this.socialComponent = social;
         bestEval = Double.POSITIVE_INFINITY;
         this.parameters = OptimizeParametersFactory.getOptimizeParameters(functionType);
-        this.function = OptimizeFunctionFactory.getOptimizeFuncton(functionType);
+        this.function = OptimizeFunctionFactory.getOptimizeFunction(functionType);
+    }
+    public int getNumOfParticles() {
+        return numOfParticles;
+    }
+
+    public void setNumOfParticles(int numOfParticles) {
+        this.numOfParticles = numOfParticles;
     }
 
     public Vector getBestPosition() {
@@ -125,14 +143,18 @@ public class Swarm implements SwarmInterface{
         }
     }
 
+    private void notifyBestEvalObserver(){
+        for (BestEvalObserver observer:
+                bestEvalObservers) {
+            observer.update();
+        }
+    }
+
     /**
      * Execute the algorithm.
      */
-    public void run () {
+    public void runOpt () {
         Particle[] particles = initialize();
-        //DLA KAŻDEGO PUNKTU ITERUJEMY PO WSZYSTKICH DANYCH W EXCELU DLA WSZYSTKICH PUNKTÓW Z KAŻDĄ INDYWIDUALNĄ TEMPERATURĄ,
-        //TRZEBA DODAĆ INDYWIDDUALNE TWORZENIE FUNKCJI I TA FUNKCJA BĘDZIE ITEROWAĆ PO WARTOŚCIACH TAKIE JAKIE SĄ W EXCELU, A DO NIEJ
-        // BĘDĄ DODAWANE TYLKO PARAMETRY A
 
         double oldEval = bestEval;
         System.out.println("--------------------------EXECUTING-------------------------");
@@ -145,6 +167,7 @@ public class Swarm implements SwarmInterface{
                 System.out.println("Best" + (i + 1) + "):\t" + bestEval + "Vec: " + bestPosition.toString());
                 oldEval = bestEval;
                 notifyBestPositionObserver();
+                notifyBestEvalObserver();
                // out.write(String.valueOf(bestEval) + " \n");
             }
 
@@ -252,4 +275,8 @@ public class Swarm implements SwarmInterface{
         particle.setVelocity(newVelocity);
     }
 
+    @Override
+    public void run() {
+        runOpt();
+    }
 }

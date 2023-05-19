@@ -7,7 +7,7 @@ public interface SwarmInterface {
 
     void addSwarmParamsObserver(SwarmParamsObserver o);
 
-    void run();
+    void runOpt();
 
     Vector getBestPosition();
 

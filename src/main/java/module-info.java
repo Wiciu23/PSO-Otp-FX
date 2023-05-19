@@ -12,4 +12,5 @@ module com.witek {
     exports com.witek.controller;
     opens com.witek.controller to javafx.fxml;
     exports com.witek.model;
+    opens com.witek.view to javafx.fxml;
 }
