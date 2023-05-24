@@ -9,6 +9,6 @@ public interface SwarmInterface {
 
     void runOpt();
 
-    Vector getBestPosition();
+    VectorOperations getBestPosition();
 
 }

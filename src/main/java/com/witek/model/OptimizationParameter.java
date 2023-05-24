@@ -1,10 +1,18 @@
 package com.witek.model;
 
-public class OptimizationParameter {
+public class OptimizationParameter{
     private double lowerBound;
     private double upperBound;
     private double stepSize; //Uzależnić
     private boolean optimize = true;
+
+    public double getStepSize() {
+        return stepSize;
+    }
+
+    public void setStepSize(double stepSize) {
+        this.stepSize = stepSize;
+    }
 
     public OptimizationParameter(){
     }

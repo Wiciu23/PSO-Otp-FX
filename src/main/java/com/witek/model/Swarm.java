@@ -20,10 +20,11 @@ public class Swarm implements SwarmInterface, Runnable {
     ArrayList<SwarmParamsObserver> swarmParamsObservers = new ArrayList<>();
     ArrayList<BestPositionObserver> bestPositionObservers = new ArrayList<>();
     ArrayList<BestEvalObserver> bestEvalObservers = new ArrayList<>();
+    ArrayList<BestEvalObserver> optimizationParametersObservers = new ArrayList<>();
 
     private int numOfParticles, epochs;
     private double inertia, cognitiveComponent, socialComponent;
-    private Vector bestPosition;
+    private VectorOperations bestPosition;
 
     public double getBestEval() {
         return bestEval;
@@ -39,8 +40,18 @@ public class Swarm implements SwarmInterface, Runnable {
     public static final double DEFAULT_SOCIAL = 1.496180; // Social component. 1,496180
     int vectorLength;
     private OptimizationFunction function;
+
+    public OptimizationParameter[] getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(OptimizationParameter[] parameters) {
+        this.parameters = parameters;
+    }
+
     private OptimizationParameter[] parameters;
     private boolean isRunning = false;
+    Particle[] particles;
 
     public void setFunction(OptimizationFunction function) {
         this.function = function;
@@ -75,6 +86,7 @@ public class Swarm implements SwarmInterface, Runnable {
         bestEval = Double.POSITIVE_INFINITY;
         this.parameters = OptimizeParametersFactory.getOptimizeParameters(functionType);
         this.function = OptimizeFunctionFactory.getOptimizeFunction(functionType);
+        this.vectorLength = parameters.length;
     }
     public int getNumOfParticles() {
         return numOfParticles;
@@ -84,7 +96,7 @@ public class Swarm implements SwarmInterface, Runnable {
         this.numOfParticles = numOfParticles;
     }
 
-    public Vector getBestPosition() {
+    public VectorOperations getBestPosition() {
         return bestPosition;
     }
 
@@ -150,11 +162,19 @@ public class Swarm implements SwarmInterface, Runnable {
         }
     }
 
+    public void initializeSwarm(){
+        this.particles = initialize();
+    }
+
+    public void reInitializeSwarm(){
+
+    }
+
     /**
      * Execute the algorithm.
      */
     public void runOpt () {
-        Particle[] particles = initialize();
+
 
         double oldEval = bestEval;
         System.out.println("--------------------------EXECUTING-------------------------");
@@ -182,7 +202,7 @@ public class Swarm implements SwarmInterface, Runnable {
             }
 
             //System.out.println("   Epoch No: " + i + " | CURRENT ERROR: " + oldEval + "  BEST ERROR: " + bestEval + " |");
-            System.out.println("   Epoch No: " + i + "= " + bestEval); //+ " VECTOR: " + bestPosition);
+            System.out.println("   Epoch No: " + i + "= " + bestEval + " POSITION: " + bestPosition); //+ " VECTOR: " + bestPosition);
             i++;
             //if(bestEval < 0.0001) break;
 
@@ -226,10 +246,10 @@ public class Swarm implements SwarmInterface, Runnable {
              initialValue = Double.POSITIVE_INFINITY;
             //initialValue = 0.0;
         } */
-
-        this.bestPosition = new Vector(initialValues);
+        Vector vector = new Vector(initialValues);
+        this.bestPosition = new VectorLockable(vector,parameters);
     }
-    //DODAĆ OBIEKT DANYCH BEZPOŚREDNIO DO ROJU.
+
     /**
      * Update the global best solution if a the specified particle has
      * a better solution
@@ -247,17 +267,17 @@ public class Swarm implements SwarmInterface, Runnable {
      * @param particle  the particle to update
      */
     private void updateVelocity (Particle particle) {
-        Vector oldVelocity = particle.getVelocity();
-        Vector pBest = particle.getBestPosition();
-        Vector gBest = bestPosition.clone();
-        Vector pos = particle.getPosition();
+        VectorOperations oldVelocity = particle.getVelocity();
+        VectorOperations pBest = particle.getBestPosition();
+        VectorOperations gBest = bestPosition.clone();
+        VectorOperations pos = particle.getPosition();
 
         Random random = new Random();
         double r1 = random.nextDouble();
         double r2 = random.nextDouble();
 
         // The first product of the formula.
-        Vector newVelocity = oldVelocity.clone();
+        VectorOperations newVelocity = oldVelocity.clone();
         newVelocity.mul(inertia);
 
         // The second product of the formula.

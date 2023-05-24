@@ -10,7 +10,7 @@ import java.util.Arrays;
 /**
  * Can represent a position as well as a velocity.
  */
-class Vector {
+class Vector implements VectorOperations {
 
     private double a[];
     private double limit = Double.MAX_VALUE;
@@ -26,53 +26,67 @@ class Vector {
         }
     }
 
+    @Override
     public double[] getCordinates(){
         double cordinates[] = a;
         return cordinates;
     }
+    @Override
     public double getVectorComponent(int index) {
         return a[index];
     }
 
-    void set (double[] _a) {
+    @Override
+    public void set(double[] _a) {
         System.arraycopy(_a, 0, this.a, 0, _a.length);
     }
 
 
 
-    void add (Vector v) {
-        for (int i = 0; i < v.a.length; i++){
-            this.a[i] += v.a[i];
+    @Override
+    public void add(VectorOperations v) {
+        for (int i = 0; i < v.length(); i++){
+            this.a[i] += v.getVectorComponent(i);
+        }
+        limit();
+        System.out.println("SIEMAAA TO NIE DZIALA");
+    }
+
+    @Override
+    public void sub(VectorOperations v) {
+        for (int i = 0; i < v.length(); i++){
+            this.a[i] -= v.getVectorComponent(i);
         }
         limit();
     }
 
-    void sub (Vector v) {
-        for (int i = 0; i < v.a.length; i++){
-            this.a[i] -= v.a[i];
-        }
-        limit();
-    }
-
-    void mul (double s) {
+    @Override
+    public void mul(double s) {
         for (int i = 0; i < a.length; i++){
             this.a[i] *= s;
         }
         limit();
     }
 
-    void div (Vector v) {
-        for (int i = 0; i < v.a.length; i++){
-            this.a[i] /= v.a[i];
+    @Override
+    public void div(VectorOperations v) {
+        for (int i = 0; i < v.length(); i++){
+            this.a[i] /= v.getVectorComponent(i);
         }
         limit();
     }
 
-    void normalize () {
+    @Override
+    public void normalize() {
         double m = mag();
         if (m > 0) for (int i = 0; i < a.length; i++){
             this.a[i] /= m;
         }
+    }
+
+    @Override
+    public int length() {
+        return a.length;
     }
 
     private double mag () {
@@ -84,7 +98,7 @@ class Vector {
         limit();
     }
 
-    private void limit () {
+    protected void limit () {
         double m = mag();
         if (m > limit) {
             double ratio = m / limit;
@@ -94,7 +108,8 @@ class Vector {
         }
     }
 
-    public Vector clone () {
+    @Override
+    public VectorOperations clone () {
         return new Vector(a);
     }
 

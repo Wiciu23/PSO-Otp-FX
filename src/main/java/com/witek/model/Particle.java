@@ -9,9 +9,9 @@ class Particle{
     //Dodawanie tutaj obserwatorów za pomoca metody fabrykującej ? -> każdy obserwator będzie modyfikował wykres (utworzyć coś z synchronisation ?
     // by tylko jeden miał dostęp ?
     
-    private Vector position;        // Current position.
-    private Vector velocity;
-    private Vector bestPosition;    // Personal best solution.
+    private VectorOperations position;        // Current position.
+    private VectorOperations velocity;
+    private VectorOperations bestPosition;    // Personal best solution.
     private double bestEval;        // Personal best value.
     private OptimizationFunction function;  // The evaluation function to use.
     private OptimizationParameter[] parameters;
@@ -20,8 +20,8 @@ class Particle{
         int vectorLength = parameters.length;
         this.function = function;
         this.parameters = parameters;
-        position = new Vector(vectorLength);
-        velocity = new Vector(vectorLength);
+        position = new VectorLockable(new Vector(vectorLength),parameters);
+        velocity = new VectorLockable(new Vector(vectorLength),parameters);
         setRandomPosition();
         bestPosition = velocity.clone();
         bestEval = eval();
@@ -45,11 +45,13 @@ class Particle{
      private void setRandomPosition () {
         int vectorLength = this.parameters.length;
         double[] randomPosition = new double[vectorLength];
-
         for(int i = 0 ; i < vectorLength ; i++){
-            double upRange = parameters[i].getUpperBound();
-            double downRange = parameters[i].getLowerBound();
-            randomPosition[i] = rand(downRange,upRange);
+            OptimizationParameter parameter = parameters[i];
+            if(parameter.isOptimize()){
+                double upRange = parameter.getUpperBound();
+                double downRange = parameter.getLowerBound();
+                randomPosition[i] = rand(downRange,upRange);
+            }
         }
 
         //dodac na sztywno generowanie zakresów parametru a jako tablicy!!! i do position set wcodzi tablica parametru a [OK]
@@ -87,7 +89,7 @@ class Particle{
      * Get a copy of the position of the particle.
      * @return  the x position
      */
-    Vector getPosition () {
+    VectorOperations getPosition () {
         return position.clone();
     }
 
@@ -95,7 +97,7 @@ class Particle{
      * Get a copy of the velocity of the particle.
      * @return  the velocity
      */
-    Vector getVelocity () {
+    VectorOperations getVelocity () {
         return velocity.clone();
     }
 
@@ -103,7 +105,7 @@ class Particle{
      * Get a copy of the personal best solution.
      * @return  the best position
      */
-    Vector getBestPosition() {
+    VectorOperations getBestPosition() {
         return bestPosition.clone();
     }
 
@@ -126,7 +128,7 @@ class Particle{
      * Set the velocity of the particle.
      * @param velocity  the new velocity
      */
-    void setVelocity (Vector velocity) {
+    void setVelocity (VectorOperations velocity) {
         this.velocity = velocity.clone();
     }
 
