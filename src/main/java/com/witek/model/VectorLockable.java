@@ -33,7 +33,6 @@ public class VectorLockable implements VectorOperations{
                 a[i] += v.getVectorComponent(i);
             }
         }
-        vector.set(a);
         vector.limit();
     }
 
@@ -45,7 +44,6 @@ public class VectorLockable implements VectorOperations{
                 a[i] -= v.getVectorComponent(i);
             }
         }
-        vector.set(a);
         vector.limit();
     }
 
@@ -57,7 +55,6 @@ public class VectorLockable implements VectorOperations{
                 a[i] *= s;
             }
         }
-        vector.set(a);
         vector.limit();
     }
 
@@ -69,7 +66,6 @@ public class VectorLockable implements VectorOperations{
                 a[i] /= v.getVectorComponent(i);
             }
         }
-        vector.set(a);
         vector.limit();
     }
 
@@ -85,7 +81,7 @@ public class VectorLockable implements VectorOperations{
 
     @Override
     public VectorOperations clone() {
-        return new VectorLockable(vector,params);
+        return new VectorLockable((Vector) vector.clone(),params);
     }
 
     @Override

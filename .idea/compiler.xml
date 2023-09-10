@@ -9,8 +9,5 @@
         <module name="PSO-Otp-FX" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="PSO-Otp-FX" target="16" />
-    </bytecodeTargetLevel>
   </component>
 </project>

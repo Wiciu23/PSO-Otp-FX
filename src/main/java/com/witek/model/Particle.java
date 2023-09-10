@@ -20,8 +20,8 @@ class Particle{
         int vectorLength = parameters.length;
         this.function = function;
         this.parameters = parameters;
-        position = new VectorLockable(new Vector(vectorLength),parameters);
-        velocity = new VectorLockable(new Vector(vectorLength),parameters);
+        this.position = new VectorLockable(new Vector(vectorLength),parameters);
+        this.velocity = new VectorLockable(new Vector(vectorLength),parameters);
         setRandomPosition();
         bestPosition = velocity.clone();
         bestEval = eval();

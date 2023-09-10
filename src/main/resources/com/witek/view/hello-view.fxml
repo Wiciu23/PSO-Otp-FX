@@ -11,13 +11,12 @@
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
-
-    <Label fx:id="welcomeText" text="Siema" />
     <Button fx:id="startButton" text="Start Optimization" onAction="#onStartOptButtonClick"/>
     <Button fx:id="stopButton" text="Stop Optimization" onAction="#onStopOptButtonClick"/>
     <TextField fx:id="particles" text="Amount of PSO particles" />
     <Label fx:id="bestEval" text ="bestEval" />
     <VBox fx:id="coefficientsFields" alignment="CENTER" spacing="5.0" xmlns:fx="http://javafx.com/fxml">
+    <VBox fx:id="dynamicGraphs" alignment="CENTER" spacing="5.0" xmlns:fx="http://javafx.com/fxml"/>
 
     </VBox>
 </VBox>

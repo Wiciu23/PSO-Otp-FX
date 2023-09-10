@@ -114,12 +114,12 @@ public class DifferentialEq {
 
     static double functionA(double m_p0, double epsilon_dot, double t, double p[],int j, double delta_h, double Q, double T, double a[], double mt_cr){
         //Dodanie stałych współczynników
-        a[7] = 0.452;
-        a[9] = 0.409;
-        a[10] = 0.0;
-        a[11] = 0.000042E13;
-        a[4] = 123.12E3;
-        a[3] = 0.05317*3E10;
+        //a[7] = 0.452;
+        //a[9] = 0.409;
+        //a[10] = 0.0;
+        //a[11] = 0.000042E13;
+        //a[4] = 123.12E3;
+        //a[3] = 0.05317*3E10;
         double p0 = m_p0;
         double b = 0.25E-9;
         double Kirchoff = 43500;

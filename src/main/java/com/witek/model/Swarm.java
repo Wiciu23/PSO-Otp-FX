@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 
 /**`
  * Represents a swarm of particles from the Particle Swarm Optimization algorithm.
@@ -84,7 +87,10 @@ public class Swarm implements SwarmInterface, Runnable {
         this.cognitiveComponent = cognitive;
         this.socialComponent = social;
         bestEval = Double.POSITIVE_INFINITY;
+        double[] initialValuesPosition = new double[vectorLength];
+        Arrays.fill(initialValuesPosition, Double.POSITIVE_INFINITY);
         this.parameters = OptimizeParametersFactory.getOptimizeParameters(functionType);
+        this.bestPosition = new VectorLockable(new Vector(initialValuesPosition),parameters);
         this.function = OptimizeFunctionFactory.getOptimizeFunction(functionType);
         this.vectorLength = parameters.length;
     }
@@ -178,8 +184,8 @@ public class Swarm implements SwarmInterface, Runnable {
 
         double oldEval = bestEval;
         System.out.println("--------------------------EXECUTING-------------------------");
-        System.out.println("Global Best Evaluation (Epoch " + 0 + "):\t"  + bestEval + "Vec " + bestPosition.toString());
-
+        System.out.println("Global Best Evaluation (Epoch " + 0 + "):\t"  + bestEval + " Vec " + bestPosition.toString());
+        notifyBestPositionObserver();
         int i = 0;
         while(bestEval > 0.000000001 && isRunning){
 
@@ -225,8 +231,8 @@ public class Swarm implements SwarmInterface, Runnable {
      * @return  an array of particles
      */
     private Particle[] initialize () {
-        Particle[] particles = new Particle[numOfParticles];
         setInitialPosition();
+        Particle[] particles = new Particle[numOfParticles];
         for (int i = 0; i < numOfParticles; i++) {
             Particle particle = new Particle(function,parameters);
             particles[i] = particle;
@@ -238,7 +244,10 @@ public class Swarm implements SwarmInterface, Runnable {
     private void setInitialPosition() {
         double[] initialValues = new double[vectorLength];
 
-        Arrays.fill(initialValues, Double.POSITIVE_INFINITY);
+        for (int i = 0 ; i < initialValues.length ; i++){
+            initialValues[i] = rand(parameters[i].getLowerBound(),parameters[i].getUpperBound());
+        }
+        //Arrays.fill(initialValues, Double.POSITIVE_INFINITY);
 
         /*
         for (double initialValue:
@@ -248,6 +257,11 @@ public class Swarm implements SwarmInterface, Runnable {
         } */
         Vector vector = new Vector(initialValues);
         this.bestPosition = new VectorLockable(vector,parameters);
+    }
+
+    private static double rand (double beginRange, double endRange) {
+        Random r = new Random();
+        return beginRange + (r.nextDouble()*(endRange-beginRange));
     }
 
     /**
@@ -266,6 +280,7 @@ public class Swarm implements SwarmInterface, Runnable {
      * Update the velocity of a particle using the velocity update formula
      * @param particle  the particle to update
      */
+
     private void updateVelocity (Particle particle) {
         VectorOperations oldVelocity = particle.getVelocity();
         VectorOperations pBest = particle.getBestPosition();
@@ -291,8 +306,15 @@ public class Swarm implements SwarmInterface, Runnable {
         gBest.mul(socialComponent);
         gBest.mul(r2);
         newVelocity.add(gBest);
-
+        //checkBoundaries(newVelocity); //check velocity if its out of boundaries
         particle.setVelocity(newVelocity);
+    }
+
+    private void checkBoundaries(VectorOperations vector) {
+        double[] coordinates = vector.getCordinates();
+        for(int i = 0 ; i < coordinates.length ; i++){
+            coordinates[i] = min(max(coordinates[i],parameters[i].getLowerBound()),parameters[i].getUpperBound());
+        }
     }
 
     @Override

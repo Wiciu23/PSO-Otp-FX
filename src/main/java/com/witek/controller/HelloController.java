@@ -1,5 +1,7 @@
 package com.witek.controller;
 
+import com.witek.model.ExcelReader;
+import com.witek.model.FunctionPlot;
 import com.witek.model.OptimizationParameter;
 import com.witek.model.Swarm;
 import javafx.application.Platform;
@@ -10,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 
@@ -21,25 +24,33 @@ import java.util.concurrent.Executors;
 
 public class HelloController {
 
+    public VBox dynamicGraphs;
     ExecutorService executorService = Executors.newCachedThreadPool();
     Swarm swarm;
     Boolean swarmNotStarted = true;
+    FunctionPlot functionPlot;
     private ObservableList<OptimizationParameter> params;
 
     @FXML
     public void initialize(){
         swarm = new Swarm(1,0,1);
         params = FXCollections.observableArrayList(swarm.getParameters());
-        swarm.addBestEvalObserver(()-> {
-            double bestEval = swarm.getBestEval();
-            Platform.runLater(() -> {
-                welcomeText.setText(String.valueOf(bestEval));
-            });
-        });
 
         //Tworzenie dynamiczne checkboxów na podstawie parametrów
-        OptimizationParameter[] parameters = swarm.getParameters();
+        prepareCoeficientCheckBoxes();
 
+        stopButton.setOnAction(actionEvent -> {
+            stopButton.setDisable(true);
+            startButton.setDisable(false);
+            if(swarm != null){
+                swarm.setRunning(false);
+            }
+        });
+    }
+
+    private void prepareCoeficientCheckBoxes() {
+        OptimizationParameter[] parameters = swarm.getParameters();
+        GridPane gridPane = new GridPane();
         for (int i = 0; i < parameters.length ; i ++) {
             OptimizationParameter parameter = parameters[i];
             CheckBox checkBox = new CheckBox("param" + i);
@@ -54,16 +65,9 @@ public class HelloController {
                     System.out.println("param" + finalI + " został wyłaczony");
                 }
             });
-            coefficientsFields.getChildren().add(checkBox);
+            gridPane.add(checkBox,i,0);
         }
-
-        stopButton.setOnAction(actionEvent -> {
-            stopButton.setDisable(true);
-            startButton.setDisable(false);
-            if(swarm != null){
-                swarm.setRunning(false);
-            }
-        });
+        coefficientsFields.getChildren().add(gridPane);
     }
 
     @FXML
@@ -79,9 +83,6 @@ public class HelloController {
     public Label bestEval;
 
     @FXML
-    private Label welcomeText;
-
-    @FXML
     private TextField particles;
 
     public HelloController() throws IOException {
@@ -89,6 +90,12 @@ public class HelloController {
 
     @FXML
     protected void onStartOptButtonClick() {
+        this.functionPlot = new FunctionPlot(ExcelReader.getObjectPropertiesExcel("Dane_lab5.xlsx"));
+        functionPlot.initialize();
+        dynamicGraphs.getChildren().add(functionPlot.getGrid());
+        swarm.addBestPositionObserver(()->{
+            functionPlot.updatePlots(swarm.getBestPosition().getCordinates());
+        });
         startButton.setDisable(true);
         stopButton.setDisable(false);
         int particles = Integer.parseInt(this.particles.getText());
@@ -99,8 +106,9 @@ public class HelloController {
             this.particles.setDisable(true);
             } else
             swarm.reInitializeSwarm();
-        welcomeText.setText("Symulacja została uruchomiona z : " + this.particles.getText() + " czastkami");
-        welcomeText.setTextFill(Paint.valueOf("crimson"));
+        //welcomeText.setText("Symulacja została uruchomiona z : " + this.particles.getText() + " czastkami");
+        //welcomeText.setTextFill(Paint.valueOf("crimson"));
+
         executorService.execute(swarm);
         swarm.setRunning(true);
         System.out.println("Symulacja uruchomiona");
@@ -117,6 +125,8 @@ public class HelloController {
             System.out.println("EXECUTOR SHUTDOWN");
         }
     }
+
+
 
     private void processTSNE(){
 
