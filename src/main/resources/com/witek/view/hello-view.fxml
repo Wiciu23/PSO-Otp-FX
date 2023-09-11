@@ -16,6 +16,7 @@
     <TextField fx:id="particles" text="Amount of PSO particles" />
     <Label fx:id="bestEval" text ="bestEval" />
     <VBox fx:id="coefficientsFields" alignment="CENTER" spacing="5.0" xmlns:fx="http://javafx.com/fxml">
+    <VBox fx:id="dynamicFields" alignment="CENTER" spacing="5.0" xmlns:fx="http://javafx.com/fxml"/>
     <VBox fx:id="dynamicGraphs" alignment="CENTER" spacing="5.0" xmlns:fx="http://javafx.com/fxml"/>
 
     </VBox>

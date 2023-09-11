@@ -1,22 +1,17 @@
 package com.witek.controller;
 
-import com.witek.model.ExcelReader;
-import com.witek.model.FunctionPlot;
-import com.witek.model.OptimizationParameter;
-import com.witek.model.Swarm;
+import com.witek.model.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -25,20 +20,23 @@ import java.util.concurrent.Executors;
 public class HelloController {
 
     public VBox dynamicGraphs;
+    public VBox dynamicFields;
     ExecutorService executorService = Executors.newCachedThreadPool();
     Swarm swarm;
     Boolean swarmNotStarted = true;
     FunctionPlot functionPlot;
     private ObservableList<OptimizationParameter> params;
+    private ComboBox<OptimizationFunction> comboBoxObjFunc;
+    private ArrayList<OptimizationFunction> functions = new ArrayList<>();
 
     @FXML
     public void initialize(){
-        swarm = new Swarm(1,0,1);
-        params = FXCollections.observableArrayList(swarm.getParameters());
-
         //Tworzenie dynamiczne checkboxów na podstawie parametrów
-        prepareCoeficientCheckBoxes();
-
+        functions.add(OptimizeFunctionFactory.getOptimizeFunction(1));
+        functions.add(OptimizeFunctionFactory.getOptimizeFunction(2));
+        functions.add(OptimizeFunctionFactory.getOptimizeFunction(3));
+        functions.add(OptimizeFunctionFactory.getOptimizeFunction(4));
+        generateFunctionDropList();
         stopButton.setOnAction(actionEvent -> {
             stopButton.setDisable(true);
             startButton.setDisable(false);
@@ -90,17 +88,24 @@ public class HelloController {
 
     @FXML
     protected void onStartOptButtonClick() {
-        this.functionPlot = new FunctionPlot(ExcelReader.getObjectPropertiesExcel("Dane_lab5.xlsx"));
-        functionPlot.initialize();
-        dynamicGraphs.getChildren().add(functionPlot.getGrid());
-        swarm.addBestPositionObserver(()->{
-            functionPlot.updatePlots(swarm.getBestPosition().getCordinates());
-        });
+        OptimizationFunction objFunction = comboBoxObjFunc.getValue();
+        OptimizationParameter[] parameters = OptimizeParametersFactory.getOptimizeParameters(objFunction.toString());
+        int particles = Integer.parseInt(this.particles.getText());
+        swarm = new Swarm(parameters,objFunction,particles,1);
+        prepareCoeficientCheckBoxes();
+        params = FXCollections.observableArrayList(swarm.getParameters());
+        if(objFunction.toString().equalsIgnoreCase("Objective function of dislocation density")){
+            this.functionPlot = new FunctionPlot(ExcelReader.getObjectPropertiesExcel("Dane_lab5.xlsx"));
+            functionPlot.initialize();
+            dynamicGraphs.getChildren().add(functionPlot.getGrid());
+            swarm.addBestPositionObserver(()->{
+                functionPlot.updatePlots(swarm.getBestPosition().getCordinates());
+            });
+        }
         startButton.setDisable(true);
         stopButton.setDisable(false);
-        int particles = Integer.parseInt(this.particles.getText());
+
         if(swarmNotStarted){
-            swarm.setNumOfParticles(particles);
             swarm.initializeSwarm();
             swarmNotStarted = false;
             this.particles.setDisable(true);
@@ -124,6 +129,13 @@ public class HelloController {
         if(executorService.isShutdown()){
             System.out.println("EXECUTOR SHUTDOWN");
         }
+    }
+
+    private void generateFunctionDropList() {
+        ComboBox<OptimizationFunction> comboBoxObjFunc = new ComboBox<>();
+        this.comboBoxObjFunc = comboBoxObjFunc;
+        comboBoxObjFunc.getItems().addAll(this.functions);
+        dynamicFields.getChildren().add(comboBoxObjFunc);
     }
 
 

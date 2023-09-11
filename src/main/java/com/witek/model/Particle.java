@@ -23,7 +23,8 @@ class Particle{
         this.position = new VectorLockable(new Vector(vectorLength),parameters);
         this.velocity = new VectorLockable(new Vector(vectorLength),parameters);
         setRandomPosition();
-        bestPosition = velocity.clone();
+        //bestPosition = velocity.clone();
+        bestPosition = position.clone();
         bestEval = eval();
         //Tutaj dodać metodę fabrykująca ?
     }

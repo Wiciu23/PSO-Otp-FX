@@ -1,3 +1,4 @@
+/*
 package com.witek.model;
 
 import java.util.Scanner;
@@ -100,3 +101,4 @@ public class Main {
         System.out.print("Function:  ");
     }
 }
+*/

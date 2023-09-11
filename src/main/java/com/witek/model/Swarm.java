@@ -65,8 +65,8 @@ public class Swarm implements SwarmInterface, Runnable {
      * @param particles     the number of particles to create
      * @param epochs        the number of generations
      */
-    public Swarm (int functionType, int particles, int epochs) {
-        this(functionType, particles, epochs, DEFAULT_INERTIA, DEFAULT_COGNITIVE, DEFAULT_SOCIAL);
+    public Swarm (OptimizationParameter[] parameters, OptimizationFunction objFunction, int particles, int epochs) {
+        this(parameters, objFunction, particles, epochs, DEFAULT_INERTIA, DEFAULT_COGNITIVE, DEFAULT_SOCIAL);
     }
 
 
@@ -80,19 +80,19 @@ public class Swarm implements SwarmInterface, Runnable {
      * @param cognitive     the cognitive component or introversion of the particle
      * @param social        the social component or extroversion of the particle
      */
-    public Swarm (int functionType, int particles, int epochs, double inertia, double cognitive, double social) {
+    public Swarm (OptimizationParameter[] parameters,OptimizationFunction objFunction, int particles, int epochs, double inertia, double cognitive, double social) {
         this.numOfParticles = particles;
         this.epochs = epochs;
         this.inertia = inertia;
         this.cognitiveComponent = cognitive;
         this.socialComponent = social;
         bestEval = Double.POSITIVE_INFINITY;
+        this.vectorLength = parameters.length;
         double[] initialValuesPosition = new double[vectorLength];
         Arrays.fill(initialValuesPosition, Double.POSITIVE_INFINITY);
-        this.parameters = OptimizeParametersFactory.getOptimizeParameters(functionType);
+        this.parameters = parameters;
         this.bestPosition = new VectorLockable(new Vector(initialValuesPosition),parameters);
-        this.function = OptimizeFunctionFactory.getOptimizeFunction(functionType);
-        this.vectorLength = parameters.length;
+        this.function = objFunction;
     }
     public int getNumOfParticles() {
         return numOfParticles;
@@ -187,7 +187,7 @@ public class Swarm implements SwarmInterface, Runnable {
         System.out.println("Global Best Evaluation (Epoch " + 0 + "):\t"  + bestEval + " Vec " + bestPosition.toString());
         notifyBestPositionObserver();
         int i = 0;
-        while(bestEval > 0.000000001 && isRunning){
+        while(bestEval > 0.000000000000001 && isRunning){
 
             if (bestEval < oldEval) {
                 System.out.println("Best" + (i + 1) + "):\t" + bestEval + "Vec: " + bestPosition.toString());

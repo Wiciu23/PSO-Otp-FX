@@ -29,4 +29,9 @@ public class FunctionMgr implements OptimizationFunction {
         totalError = totalError/(dataModel.length);
         return totalError;
     }
+
+    @Override
+    public String toString(){
+        return "Objective function of dislocation density";
+    }
 }
