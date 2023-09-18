@@ -180,8 +180,6 @@ public class Swarm implements SwarmInterface, Runnable {
      * Execute the algorithm.
      */
     public void runOpt () {
-
-
         double oldEval = bestEval;
         System.out.println("--------------------------EXECUTING-------------------------");
         System.out.println("Global Best Evaluation (Epoch " + 0 + "):\t"  + bestEval + " Vec " + bestPosition.toString());
@@ -194,7 +192,6 @@ public class Swarm implements SwarmInterface, Runnable {
                 oldEval = bestEval;
                 notifyBestPositionObserver();
                 notifyBestEvalObserver();
-               // out.write(String.valueOf(bestEval) + " \n");
             }
 
             for (Particle p : particles) {
@@ -207,11 +204,8 @@ public class Swarm implements SwarmInterface, Runnable {
                 p.updatePosition();
             }
 
-            //System.out.println("   Epoch No: " + i + " | CURRENT ERROR: " + oldEval + "  BEST ERROR: " + bestEval + " |");
             System.out.println("   Epoch No: " + i + "= " + bestEval + " POSITION: " + bestPosition); //+ " VECTOR: " + bestPosition);
             i++;
-            //if(bestEval < 0.0001) break;
-
         }
 
         System.out.println("---------------------------RESULT---------------------------");
