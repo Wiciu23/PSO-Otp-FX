@@ -42,7 +42,7 @@ public class Automat {
             }
         }
 
-        private static void prepareDataFile(Optimization opt) throws IOException {
+        private static void prepareDataFile(Swarm opt) throws IOException {
 
             String initialRow = "bestEval,BestVector";
             String fileName = String.format("IterationsOfFunction");
